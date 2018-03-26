@@ -1,3 +1,5 @@
+/* The service worker code is based off Udacity's & Jake Archibald's from Google implementation of service worker */
+
 var staticCacheName = 'mws-restaurant-static-v1';
 var contentImgsCache = 'mws-restaurant-imgs';
 var allCaches = [
@@ -37,7 +39,7 @@ self.addEventListener('fetch', function(event) {
 
   if (requestUrl.origin === location.origin) {
     if (requestUrl.pathname.startsWith('/img/')) {
-      event.respondWith(servePhoto(event.request));
+      event.respondWith(serveImage(event.request));
       return;
     }
   }
@@ -49,7 +51,7 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-function servePhoto(request) {
+function serveImage(request) {
   var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
 
   return caches.open(contentImgsCache).then(function(cache) {
