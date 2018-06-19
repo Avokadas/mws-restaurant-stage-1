@@ -1,0 +1,55 @@
+@media screen and (min-width: 750px) {
+  #maincontent {
+    display: flex;
+  }
+
+  #map-container {
+    height: 85vh;
+    width: 50%;
+  }
+
+  #map {
+    height: 100%;
+  }
+
+  #restaurants-container {
+    width: 50%;
+    height: 85vh;
+    overflow-y: scroll;
+  }
+
+  .inside #maincontent {
+    display: flex;
+    flex-direction: column;
+    flex-wrap:  wrap;
+    height: 78vh;
+  }
+
+  .inside #map-container {
+    height: 87%;
+    position: relative;
+    height: 30vh;
+  }
+
+  .side-container {
+    width: 50%;
+  }
+
+  #restaurant-container {
+    height: 100%;
+    width: calc(50% - 30px);
+  }
+
+  #reviews-container {
+    height: calc(100% - 34vh + 5px);
+    overflow-y:  scroll;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  #maincontent {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

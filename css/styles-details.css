@@ -1,0 +1,119 @@
+/* ====================== Restaurant Details ====================== */
+
+.inside header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.inside body {
+  display: flex;
+  flex-direction: column;
+}
+
+.inside #maincontent {
+  padding-top: 110px;
+  padding-bottom: 40px;
+  flex-grow: 1;
+}
+
+.inside #map-container {
+  background: blue none repeat scroll 0 0;
+  height: 50vh;
+  width: 100%;
+}
+.inside #map {
+  background-color: #ccc;
+  height: 100%;
+  width: 100%;
+}
+
+.side-container {
+  display: flex;
+  flex-direction:  column;
+}
+
+#restaurant-name {
+  color: #b35400;
+  font-family: Arial,sans-serif;
+  font-size: 2em;
+  font-weight: inherit;
+  letter-spacing: 0;
+  margin: 15px 0 20px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+#restaurant-img {
+	max-width: 100%;
+}
+#restaurant-address {
+  font-size: 12pt;
+  margin: 10px 0px;
+}
+#restaurant-cuisine {
+  background-color: #333;
+  color: #ddd;
+  font-size: 12pt;
+  font-weight: 300;
+  letter-spacing: 10px;
+  margin: 0 0 20px;
+  padding: 2px 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+#restaurant-container, #reviews-container {
+  border-bottom: 1px solid #d9d9d9;
+  border-top: 1px solid #fff;
+  padding: 0 15px 0;
+  width: calc(100% - 30px);
+}
+#reviews-container {
+  padding: 30px 20px 0;
+  width: calc(100% - 40px);
+}
+#reviews-container h3 {
+  color: #b54d00;
+  font-size: 24pt;
+  font-weight: 300;
+  letter-spacing: -1px;
+  padding-bottom: 1pt;
+}
+#reviews-list {
+  margin: 0;
+  padding: 0;
+}
+#reviews-list li {
+  background-color: #fff;
+  border: 2px solid #f3f3f3;
+  display: block;
+  list-style-type: none;
+  margin: 0 0 30px;
+  overflow: hidden;
+  padding: 10px 20px 20px;
+  position: relative;
+  width: 85%;
+}
+#reviews-list li p {
+  margin: 0 0 10px;
+}
+
+.review__reviewer-name {
+  font-size: 2em;
+}
+
+.review__review-date {
+  font-style: italic;
+}
+
+.review__review-information {
+  border-bottom:  1px solid black;
+  margin-bottom:  20px;
+}
+
+#restaurant-hours{
+  width: 100%;
+}
+#restaurant-hours td {
+  color: #666;
+}

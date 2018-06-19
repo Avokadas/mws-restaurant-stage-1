@@ -141,7 +141,7 @@ export default class DbHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/dist/images/${restaurant.photograph}.jpg`);
+    return (`/dist/images/${restaurant.photograph}.webp`);
   }
 
   /**

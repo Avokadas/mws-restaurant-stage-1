@@ -36,6 +36,8 @@
     "gulp-babel": "^7.0.1",
     "gulp-browserify": "^0.5.1",
     "gulp-imagemin": "^4.1.0",
-    "gulp-inline-css": "^3.3.0"
+    "gulp-inline-css": "^3.3.0",
+    "gulp-uglify": "^3.0.0",
+    "gulp-webp": "^3.0.0"
   }
 }

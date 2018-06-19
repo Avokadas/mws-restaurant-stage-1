@@ -8,6 +8,8 @@ var watchify = require('watchify');
 var babel = require('babelify');
 const imagemin = require('gulp-imagemin');
 const inlineCss = require('gulp-inline-css');
+var uglify = require('gulp-uglify');
+const webp = require('gulp-webp');
 
 function compile(watch) {
     var bundler = watchify(browserify('./js/main.js', { debug: true }).transform("babelify", {presets: ["env"]}));
@@ -19,6 +21,7 @@ function compile(watch) {
         .on('error', function(err) { console.error(err); this.emit('end'); })
         .pipe(source('build.js'))
         .pipe(buffer())
+        .pipe(uglify())
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist'));
@@ -27,6 +30,7 @@ function compile(watch) {
         .on('error', function(err) { console.error(err); this.emit('end'); })
         .pipe(source('build_restaurant.js'))
         .pipe(buffer())
+        .pipe(uglify())
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist'));
@@ -35,6 +39,7 @@ function compile(watch) {
         .on('error', function(err) { console.error(err); this.emit('end'); })
         .pipe(source('build_sw.js'))
         .pipe(buffer())
+        .pipe(uglify())
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./'));
@@ -80,15 +85,8 @@ function compile(watch) {
         imagemin.optipng(),
         imagemin.svgo([{removeViewBox: false}, {minifyStyles: false}])
       ], {verbose: true}))
+      .pipe(webp())
       .pipe(gulp.dest('dist/images'))
   })
   
-  gulp.task('inline', () => {
-    gulp.src('./index.html')
-        .pipe(inlineCss())
-        .pipe(gulp.dest('build/'));
-  })
-
-
-
   gulp.task('default', ['watch']);
