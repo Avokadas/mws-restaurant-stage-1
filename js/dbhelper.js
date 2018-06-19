@@ -1,34 +1,29 @@
-/**
- * Common database helper functions.
- */
-class DBHelper {
+export default class DbHelper {
 
   /**
    * Database URL.
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    const port = 8000 // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
+    const port = 1337 // Change this to your server port
+    return `http://localhost:${port}/restaurants`;
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
+    fetch(DbHelper.DATABASE_URL)
+      .then(res => {
+        return res.json()
+      })
+      .then(restaurants => {
         callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
+      })
+      .catch(e => {
+        const error = (`Request failed. Returned status of ${e}`);
         callback(error, null);
-      }
-    };
-    xhr.send();
+      })
   }
 
   /**
@@ -36,18 +31,14 @@ class DBHelper {
    */
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
-        }
-      }
-    });
+    fetch(`${DbHelper.DATABASE_URL}/${id}`)
+      .then(res => res.json())
+      .then(restaurant => {
+        callback(null, restaurant);
+      })
+      .catch(() => {
+        callback('Restaurant does not exist', null);
+      })
   }
 
   /**
@@ -55,7 +46,7 @@ class DBHelper {
    */
   static fetchRestaurantByCuisine(cuisine, callback) {
     // Fetch all restaurants  with proper error handling
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    DbHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -71,7 +62,7 @@ class DBHelper {
    */
   static fetchRestaurantByNeighborhood(neighborhood, callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    DbHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -87,7 +78,7 @@ class DBHelper {
    */
   static fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    DbHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -108,7 +99,7 @@ class DBHelper {
    */
   static fetchNeighborhoods(callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    DbHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -126,7 +117,7 @@ class DBHelper {
    */
   static fetchCuisines(callback) {
     // Fetch all restaurants
-    DBHelper.fetchRestaurants((error, restaurants) => {
+    DbHelper.fetchRestaurants((error, restaurants) => {
       if (error) {
         callback(error, null);
       } else {
@@ -150,7 +141,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    return (`/dist/images/${restaurant.photograph}.jpg`);
   }
 
   /**
@@ -160,7 +151,7 @@ class DBHelper {
     const marker = new google.maps.Marker({
       position: restaurant.latlng,
       title: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant),
+      url: DbHelper.urlForRestaurant(restaurant),
       map: map,
       animation: google.maps.Animation.DROP}
     );

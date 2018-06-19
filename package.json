@@ -1,0 +1,41 @@
+{
+  "name": "mws-restaurant-stage-1",
+  "version": "1.0.0",
+  "description": "---\r #### _Three Stage Course Material Project - Restaurant Reviews_",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Avokadas/mws-restaurant-stage-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Avokadas/mws-restaurant-stage-1/issues"
+  },
+  "homepage": "https://github.com/Avokadas/mws-restaurant-stage-1#readme",
+  "dependencies": {
+    "babelify": "^8.0.0",
+    "browserify": "^16.2.2",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "idb": "^2.1.2",
+    "lozad": "^1.4.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^3.11.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "browser-sync": "^2.24.4",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-browserify": "^0.5.1",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-inline-css": "^3.3.0"
+  }
+}
