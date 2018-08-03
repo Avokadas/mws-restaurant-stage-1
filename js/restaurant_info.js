@@ -46,10 +46,21 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   const cuisine = document.getElementById('restaurant-cuisine');
   cuisine.innerHTML = restaurant.cuisine_type;
 
+
   // fill operating hours
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
+
+  const checkbox = document.querySelector('.switch input');
+
+  console.log(restaurant)
+  checkbox.checked = restaurant.is_favorite === 'true';
+
+  checkbox.addEventListener("change", () => {
+    DbHelper.setRestaurantFavoriteIndicator(restaurant.id, restaurant.is_favorite === 'false' ? 'true' : 'false')
+  })
+
   // fill reviews
   fillReviewsHTML();
 }

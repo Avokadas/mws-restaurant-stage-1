@@ -130,6 +130,23 @@ export default class DbHelper {
     });
   }
 
+  static setRestaurantFavoriteIndicator(restaurantId, isFavorite) {
+    return fetch(
+      `${DbHelper.DATABASE_URL}/${restaurantId}/?is_favorite=${isFavorite}`, {
+      method: 'PUT'
+    })
+      .then(res => {
+        console.log(res)
+        return res.json()
+      })
+      .then(restaurant => {
+        console.log(restaurant, '<- favorited')
+      })
+      .catch(() => {
+        callback('Restaurant does not exist', null);
+      })
+  }
+
   /**
    * Restaurant page URL.
    */
