@@ -17,6 +17,7 @@ const fetchRestaurantFromURL = (callback) => {
     callback(error, null);
   } else {
     DbHelper.fetchRestaurantById(id, (error, restaurant) => {
+      console.log(restaurant);
       self.restaurant = restaurant;
       if (!restaurant) {
         console.error(error);
@@ -54,7 +55,6 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
 
   const checkbox = document.querySelector('.switch input');
 
-  console.log(restaurant)
   checkbox.checked = restaurant.is_favorite === 'true';
 
   checkbox.addEventListener("change", () => {
@@ -98,13 +98,54 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
     const noReviews = document.createElement('p');
     noReviews.innerHTML = 'No reviews yet!';
     container.appendChild(noReviews);
-    return;
+  } else {
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
   }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+
+  const reviewForm = document.createElement('form');
+  reviewForm.classList.add('reviews--form')
+
+  const reviewFormHeader = document.createElement('h2');
+  reviewFormHeader.textContent = 'Write a review:';
+
+  const restaurantNameInput = document.createElement('input');
+  restaurantNameInput.type = 'text';
+  restaurantNameInput.placeholder = 'Reviewer name';
+
+  const restaurantRatingInput = document.createElement('input');
+  restaurantRatingInput.type = 'text';
+  restaurantRatingInput.placeholder = 'Restaurant rating 1-5';
+
+  const restaurantCommentTextArea = document.createElement('textarea');
+  restaurantCommentTextArea.placeholder = 'Comments';
+
+  const reviewFormSubmitButton = document.createElement('button');
+  reviewFormSubmitButton.textContent = 'Submit Review';
+  reviewFormSubmitButton.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    DbHelper.postReviewOnRestaurant({
+      restaurant_id: self.restaurant.id,
+      name: restaurantNameInput.value,
+      rating: restaurantRatingInput.value,
+      comment: restaurantCommentTextArea.value
+    });
+
+
+  })
+
+  reviewForm.appendChild(reviewFormHeader);
+  reviewForm.appendChild(restaurantNameInput);
+  reviewForm.appendChild(restaurantRatingInput);
+  reviewForm.appendChild(restaurantCommentTextArea);
+  reviewForm.appendChild(reviewFormSubmitButton);
+
+  container.appendChild(reviewForm);
+
 }
 
 /**

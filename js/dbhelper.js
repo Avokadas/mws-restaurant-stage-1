@@ -5,15 +5,15 @@ export default class DbHelper {
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    const port = 1337 // Change this to your server port
-    return `http://localhost:${port}/restaurants`;
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}`;
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    fetch(DbHelper.DATABASE_URL)
+    fetch(`${DbHelper.DATABASE_URL}/restaurants`)
       .then(res => {
         return res.json()
       })
@@ -31,10 +31,16 @@ export default class DbHelper {
    */
   static fetchRestaurantById(id, callback) {
     // fetch all restaurants with proper error handling.
-    fetch(`${DbHelper.DATABASE_URL}/${id}`)
+    fetch(`${DbHelper.DATABASE_URL}/restaurants/${id}`)
       .then(res => res.json())
       .then(restaurant => {
-        callback(null, restaurant);
+        fetch(`${DbHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`)
+          .then(res => res.json())
+          .then(reviews => {
+            console.log(reviews);
+            restaurant.reviews = reviews;
+            callback(null, restaurant);
+          })
       })
       .catch(() => {
         callback('Restaurant does not exist', null);
@@ -132,7 +138,7 @@ export default class DbHelper {
 
   static setRestaurantFavoriteIndicator(restaurantId, isFavorite) {
     return fetch(
-      `${DbHelper.DATABASE_URL}/${restaurantId}/?is_favorite=${isFavorite}`, {
+      `${DbHelper.DATABASE_URL}/restaurants/${restaurantId}/?is_favorite=${isFavorite}`, {
       method: 'PUT'
     })
       .then(res => {
@@ -144,9 +150,27 @@ export default class DbHelper {
       })
       .catch(() => {
         callback('Restaurant does not exist', null);
-      })
+      });
   }
 
+  static postReviewOnRestaurant(review, callback) {
+    return fetch(
+      `${DbHelper.DATABASE_URL}/reviews`, {
+      method: 'POST',
+      body: JSON.stringify(review)
+    })
+      .then(res => {
+        console.log(res)
+        return res.json()
+      })
+      .then(res => {
+        console.log(res, '<- posted')
+      })
+      .catch(() => {
+        callback('Review failed to save', null);
+      })
+  }
+  
   /**
    * Restaurant page URL.
    */
