@@ -132,7 +132,7 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
       restaurant_id: self.restaurant.id,
       name: restaurantNameInput.value,
       rating: restaurantRatingInput.value,
-      comment: restaurantCommentTextArea.value
+      comments: restaurantCommentTextArea.value
     });
 
 
@@ -164,7 +164,7 @@ const createReviewHTML = (review) => {
 
   const date = document.createElement('p');
   name.classList.add('review__review-date');
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.createdAt).toDateString();
   reviewInformationContainer.appendChild(date);
 
   const rating = document.createElement('p');

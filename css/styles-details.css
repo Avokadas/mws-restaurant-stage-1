@@ -20,7 +20,7 @@
 
 .inside #map-container {
   background: blue none repeat scroll 0 0;
-  height: 50vh;
+  height: 30vh;
   width: 100%;
 }
 .inside #map {
