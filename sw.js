@@ -163,17 +163,14 @@ self.addEventListener('fetch', function(event) {
   const handleQueryRequests = () => {
     console.log(requestUrl.pathname);
     if(requestUrl.pathname === '/restaurants') {
-      console.log('111111111111111');
       handleRestaurantsQuery();
     } else if (requestUrl.pathname.match(/restaurants\/\d+/)) {
-      console.log('222222222222222');
       const restaurantRegex = /restaurants\/(\d+)/;
       const matches = requestUrl.pathname.match(restaurantRegex);
       const restaurantId = matches[matches.index];
 
       handleRestaurantDetailsQuery(restaurantId);
     } else if (requestUrl.pathname.match(/reviews\//)) {
-      console.log('3333333333333333');
       handleRestaurantReviewsQuery(requestUrl.searchParams.get('restaurant_id'));
     } else {
       event.respondWith(
@@ -188,7 +185,14 @@ self.addEventListener('fetch', function(event) {
     if (navigator.onLine) {
       fetch(event.request);
     } else {
-      console.log('offline post/put!!!')
+      const matches = requestUrl.pathname.match(/reviews/);
+      console.log(matches, requestUrl.pathname);
+      if (matches) {
+        event.request.json()
+        .then(res => {
+          addOfflineReviewToDatabase(res)
+        })
+      }
     }
   }
 
@@ -226,11 +230,26 @@ const addRestaurantDetailsToDatabase = (restaurantDetails, restaurantId) => {
   })
 }
 
-const addRestaurantReviewsToDatabase = (restaurantDetails, restaurantId) => {
+const addRestaurantReviewsToDatabase = (restaurantReviews, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantReviews', 'readwrite');
     var keyValStore = tx.objectStore('restaurantReviews');
-    keyValStore.put(restaurantDetails, restaurantId)
+    keyValStore.put(restaurantReviews, restaurantId)
+    return tx.complete;
+  })
+}
+
+const addOfflineReviewToDatabase = (review) => {
+  return dbPromise.then(db => {
+    var tx = db.transaction('restaurantReviews', 'readwrite');
+    var keyValStore = tx.objectStore('restaurantReviews');
+
+    keyValStore.get('' + review.restaurant_id)
+      .then(reviewsForRestaurant => {
+        console.log(reviewsForRestaurant)
+        reviewsForRestaurant.push(review);
+        keyValStore.put(reviewsForRestaurant, review.restaurant_id)
+      })
     return tx.complete;
   })
 }
