@@ -13,6 +13,8 @@ var dbPromise = idb.open('restaurants-db', 4, function(upgradeDb) {
       upgradeDb.createObjectStore('restaurants', { keypath: 'name' });
     case 1:
       upgradeDb.createObjectStore('restaurantDetails', { keypath: 'id' });
+    case 2:
+      upgradeDb.createObjectStore('restaurantReviews', { keypath: 'restaurantId' });
   }
 });
 
@@ -121,15 +123,58 @@ self.addEventListener('fetch', function(event) {
       }
   }
 
+  const handleRestaurantReviewsQuery = (restaurantId) => {
+    if(navigator.onLine) {
+      event.respondWith(
+        fetch(event.request)
+        .then(res => {
+          let originalResponse = res.clone();
+          return res.json()
+            .then(reviews => addRestaurantReviewsToDatabase(reviews, restaurantId))
+            .then(() => {
+              return originalResponse
+            })
+        })
+      )
+    } else {
+      event.respondWith(
+        dbPromise.then(db => {
+          return db
+            .transaction('restaurantReviews')
+            .objectStore('restaurantReviews')
+            .getAll()
+            .then(reviewsByRestaurant => {
+              const reviews = reviewsByRestaurant.reduce((allReviews, reviewsBySingleRestaurant) => allReviews.concat(reviewsBySingleRestaurant), []);
+              console.log(reviews);
+              let restaurantReviews = reviews
+                .filter(r => r.restaurant_id === parseInt(restaurantId));
+
+              console.log('returning when offline!!!', restaurantReviews)
+              var blob = new Blob([JSON.stringify(restaurantReviews, null, 2)], {type : 'application/json'});
+
+              var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
+              return new Response(blob, init);
+            });
+        })
+      )
+    }
+}
+
   const handleQueryRequests = () => {
+    console.log(requestUrl.pathname);
     if(requestUrl.pathname === '/restaurants') {
+      console.log('111111111111111');
       handleRestaurantsQuery();
-    } else if (requestUrl.pathname.match(/restaurants\/(\d+)/)) {
+    } else if (requestUrl.pathname.match(/restaurants\/\d+/)) {
+      console.log('222222222222222');
       const restaurantRegex = /restaurants\/(\d+)/;
       const matches = requestUrl.pathname.match(restaurantRegex);
       const restaurantId = matches[matches.index];
 
       handleRestaurantDetailsQuery(restaurantId);
+    } else if (requestUrl.pathname.match(/reviews\//)) {
+      console.log('3333333333333333');
+      handleRestaurantReviewsQuery(requestUrl.searchParams.get('restaurant_id'));
     } else {
       event.respondWith(
         caches
@@ -176,6 +221,15 @@ const addRestaurantDetailsToDatabase = (restaurantDetails, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantDetails', 'readwrite');
     var keyValStore = tx.objectStore('restaurantDetails');
+    keyValStore.put(restaurantDetails, restaurantId)
+    return tx.complete;
+  })
+}
+
+const addRestaurantReviewsToDatabase = (restaurantDetails, restaurantId) => {
+  return dbPromise.then(db => {
+    var tx = db.transaction('restaurantReviews', 'readwrite');
+    var keyValStore = tx.objectStore('restaurantReviews');
     keyValStore.put(restaurantDetails, restaurantId)
     return tx.complete;
   })
