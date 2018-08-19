@@ -156,11 +156,7 @@ export default class DbHelper {
       body: JSON.stringify(review)
     })
       .then(res => {
-        console.log(res)
         return res.json()
-      })
-      .then(res => {
-        console.log(res, '<- posted')
       })
       .catch(() => {
         callback('Review failed to save', null);

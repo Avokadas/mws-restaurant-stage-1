@@ -137,12 +137,17 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   reviewFormSubmitButton.addEventListener('click', (e) => {
     e.preventDefault();
 
-    DbHelper.postReviewOnRestaurant({
-      restaurant_id: self.restaurant.id,
-      name: restaurantNameInput.value,
-      rating: restaurantRatingInput.value,
-      comments: restaurantCommentTextArea.value
-    });
+    DbHelper
+      .postReviewOnRestaurant({
+        restaurant_id: self.restaurant.id,
+        name: restaurantNameInput.value,
+        rating: restaurantRatingInput.value,
+        comments: restaurantCommentTextArea.value
+      })
+      .then(review => {
+        const ul = document.getElementById('reviews-list');
+        ul.appendChild(createReviewHTML(review));
+      });
 
 
   })
