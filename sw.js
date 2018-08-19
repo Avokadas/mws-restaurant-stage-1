@@ -1,7 +1,7 @@
 import idb from 'idb';
 
 var staticCacheName = 'mws-restaurant-static-v1';
-var contentImgsCache = 'mws-restaurant-imgs';
+var contentImgsCache = 'mws-restaurant-imgs-v1';
 var allCaches = [
   staticCacheName,
   contentImgsCache
@@ -50,13 +50,31 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('fetch', function(event) {
   var requestUrl = new URL(event.request.url);
-  // if (requestUrl.origin === location.origin) {
-  //   if (requestUrl.pathname.startsWith('/img/')) {
-  //     event.respondWith(serveImage(event.request));
-  //     return;
-  //   }
-  // }
-  
+
+  const handleServeImage = (request) => {
+    var storageUrl = request.url.replace(/-\d+px\.webp$/, '');
+    console.log(storageUrl);
+    return caches.open(contentImgsCache)
+      .then((cache) => {
+        return cache.match(storageUrl)
+          .then((response) => {
+            if (response) return response;
+            return fetch(request)
+              .then((networkResponse) => {
+                cache.put(storageUrl, networkResponse.clone());
+                return networkResponse;
+              });
+          });
+      });
+  }
+
+  if (requestUrl.origin === location.origin) {
+    if (requestUrl.pathname.startsWith('/dist/images/')) {
+      event.respondWith(handleServeImage(event.request));
+      return;
+    }
+  }
+
   const handleRestaurantsQuery = () => {
     if(navigator.onLine) {
       event.respondWith(
@@ -253,18 +271,3 @@ const addOfflineReviewToDatabase = (review) => {
     return tx.complete;
   })
 }
-
-// function serveImage(request) {
-//   var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
-
-//   return caches.open(contentImgsCache).then(function(cache) {
-//     return cache.match(storageUrl).then(function(response) {
-//       if (response) return response;
-
-//       return fetch(request).then(function(networkResponse) {
-//         cache.put(storageUrl, networkResponse.clone());
-//         return networkResponse;
-//       });
-//     });
-//   });
-// }
