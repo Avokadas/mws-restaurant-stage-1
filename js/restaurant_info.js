@@ -58,7 +58,16 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
   checkbox.checked = restaurant.is_favorite === 'true';
 
   checkbox.addEventListener("change", () => {
-    DbHelper.setRestaurantFavoriteIndicator(restaurant.id, restaurant.is_favorite === 'false' ? 'true' : 'false')
+    DbHelper
+      .setRestaurantFavoriteIndicator(
+        restaurant.id, 
+        restaurant.is_favorite === 'false' 
+          ? 'true'
+          : 'false'
+      )
+      .then(savedRestaurant => {
+        restaurant.is_favorite = savedRestaurant.is_favorite;
+      })
   })
 
   // fill reviews

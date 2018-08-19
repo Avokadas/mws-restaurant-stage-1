@@ -142,11 +142,7 @@ export default class DbHelper {
       method: 'PUT'
     })
       .then(res => {
-        console.log(res)
         return res.json()
-      })
-      .then(restaurant => {
-        console.log(restaurant, '<- favorited')
       })
       .catch(() => {
         callback('Restaurant does not exist', null);
