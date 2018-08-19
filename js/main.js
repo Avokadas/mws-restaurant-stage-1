@@ -181,7 +181,6 @@ const addMarkersToMap = (restaurants = self.restaurants) => {
   updateMapPicture(markers)
 }
 const updateMapPicture = (markers) => {
-  console.log(markers)
   const url = `https://maps.googleapis.com/maps/api/staticmap?
   center=${loc.lat}, ${loc.lng}
   &zoom=12
@@ -210,10 +209,11 @@ window.initMap = () => {
   //   center: loc,
   //   scrollwheel: false
   // });
-
-  updateMapPicture();
-
-  updateRestaurants();
+  setTimeout(() => {
+    updateMapPicture();
+  
+    updateRestaurants();
+  }, 0);
 }
 
 /**
