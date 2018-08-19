@@ -123,14 +123,26 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   const restaurantNameInput = document.createElement('input');
   restaurantNameInput.type = 'text';
-  restaurantNameInput.placeholder = 'Reviewer name';
+  restaurantNameInput.placeholder = 'Name';
+  const restaurantNameInputLabel = document.createElement('label');
+  restaurantNameInputLabel.textContent = 'Reviewer name:';
+  restaurantNameInputLabel.appendChild(restaurantNameInput);
+  restaurantNameInputLabel.classList.add('review--label');
 
   const restaurantRatingInput = document.createElement('input');
   restaurantRatingInput.type = 'text';
-  restaurantRatingInput.placeholder = 'Restaurant rating 1-5';
+  restaurantRatingInput.placeholder = 'Rating';
+  const restaurantRatingInputLabel = document.createElement('label');
+  restaurantRatingInputLabel.textContent = 'Restaurant rating 1-5:';
+  restaurantRatingInputLabel.appendChild(restaurantRatingInput);
+  restaurantRatingInputLabel.classList.add('review--label');
 
   const restaurantCommentTextArea = document.createElement('textarea');
   restaurantCommentTextArea.placeholder = 'Comments';
+  const restaurantCommentTextAreaLabel = document.createElement('label');
+  restaurantCommentTextAreaLabel.textContent = 'Comments:';
+  restaurantCommentTextAreaLabel.appendChild(restaurantCommentTextArea);
+  restaurantCommentTextAreaLabel.classList.add('review--label');
 
   const reviewFormSubmitButton = document.createElement('button');
   reviewFormSubmitButton.textContent = 'Submit Review';
@@ -153,9 +165,9 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
   })
 
   reviewForm.appendChild(reviewFormHeader);
-  reviewForm.appendChild(restaurantNameInput);
-  reviewForm.appendChild(restaurantRatingInput);
-  reviewForm.appendChild(restaurantCommentTextArea);
+  reviewForm.appendChild(restaurantNameInputLabel);
+  reviewForm.appendChild(restaurantRatingInputLabel);
+  reviewForm.appendChild(restaurantCommentTextAreaLabel);
   reviewForm.appendChild(reviewFormSubmitButton);
 
   container.appendChild(reviewForm);

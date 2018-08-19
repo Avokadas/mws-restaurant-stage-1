@@ -184,3 +184,8 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
 }
+
+.review--label {
+  display: flex;
+  flex-direction: column;
+}
