@@ -117,6 +117,7 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   const reviewForm = document.createElement('form');
   reviewForm.classList.add('reviews--form')
+  reviewForm.setAttribute('role', 'form');
 
   const reviewFormHeader = document.createElement('h2');
   reviewFormHeader.textContent = 'Write a review:';
