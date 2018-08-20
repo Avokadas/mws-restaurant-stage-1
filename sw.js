@@ -48,6 +48,13 @@ self.addEventListener('activate', function(event) {
   );
 });
 
+self.addEventListener('sync', function(event) {
+  if (event.tag == 'sync-reviews') {
+    console.log('I AM SYNKAN');
+    // event.waitUntil(doSomeStuff());
+  }
+});
+
 self.addEventListener('fetch', function(event) {
   var requestUrl = new URL(event.request.url);
 

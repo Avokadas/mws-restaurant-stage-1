@@ -3,6 +3,11 @@ import DbHelper from './dbhelper'
 let restaurant;
 var map;
 
+if(navigator.serviceWorker) {
+  navigator.serviceWorker.ready
+    .then((reg) => reg.sync.register('sync-reviews'))
+};
+
 /**
  * Get current restaurant from page URL.
  */

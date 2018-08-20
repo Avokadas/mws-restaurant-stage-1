@@ -18,11 +18,15 @@ let self = {
 const registerServiceWorker = () => {
   if(!navigator.serviceWorker) return;
 
-  navigator.serviceWorker.register('/build_sw.js').then(function(reg) {
-    if (!navigator.serviceWorker.controller) {
-        return;
-    }
-  });
+  navigator.serviceWorker.register('/build_sw.js')
+    .then(function(reg) {
+      if (!navigator.serviceWorker.controller) {
+          return;
+      }
+    });
+
+  navigator.serviceWorker.ready
+    .then((reg) => reg.sync.register('sync-reviews'))
 }
 
 /**
