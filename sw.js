@@ -51,72 +51,98 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('sync', function(event) {
   if (event.tag === 'sync-reviews') {
     
-    event.waitUntil(dbPromise.then(db => {
-      return db
-        .transaction('restaurantReviews')
-        .objectStore('restaurantReviews')
-        .getAll()
-        .then(reviewsByRestaurant => {
-          const reviews = reviewsByRestaurant
-            .reduce((allReviews, reviewsBySingleRestaurant) => allReviews.concat(reviewsBySingleRestaurant),
-              []);
-
-          if(reviews.length === 0) return;
-
-          let offlineReviews = reviews.filter(r => r.isOffline);
-
-
-          console.log(offlineReviews);
-
-          Promise.all(
-          offlineReviews.map(offlineReview => {
-            fetch('http://localhost:1337/reviews/', {
-              method: 'post',
-              body: JSON.stringify({
-                restaurant_id: offlineReview.restaurant_id,
-                name: offlineReview.name,
-                rating: offlineReview.rating,
-                comments: offlineReview.comments
+    event.waitUntil(Promise.all([
+      dbPromise.then(db => {
+        return db
+          .transaction('restaurantReviews')
+          .objectStore('restaurantReviews')
+          .getAll()
+          .then(reviewsByRestaurant => {
+            const reviews = reviewsByRestaurant
+              .reduce((allReviews, reviewsBySingleRestaurant) => allReviews.concat(reviewsBySingleRestaurant),
+                []);
+  
+            if(reviews.length === 0) return;
+  
+            let offlineReviews = reviews.filter(r => r.isOffline);
+  
+  
+            console.log(offlineReviews);
+  
+            Promise.all(
+            offlineReviews.map(offlineReview => {
+              fetch('http://localhost:1337/reviews/', {
+                method: 'post',
+                body: JSON.stringify({
+                  restaurant_id: offlineReview.restaurant_id,
+                  name: offlineReview.name,
+                  rating: offlineReview.rating,
+                  comments: offlineReview.comments
+                })
               })
-            })
-              .then(res => res.json())
-              .then(review => {
+                .then(res => res.json())
+                .then(review => {
+                  dbPromise
+                  .then(db => {
+                    var tx = db.transaction('restaurantReviews', 'readwrite');
+                    var keyValStore = tx.objectStore('restaurantReviews');
+                
+                    keyValStore.get('' + review.restaurant_id)
+                      .then(reviewsForRestaurant => {
+                        reviewsForRestaurant.push(review);
+                        keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id)
+                      })
+                    return tx.complete;
+                  })
+                  })
+              }))
+              .then(() => {
+                return db
+                  .transaction('restaurantReviews')
+                  .objectStore('restaurantReviews')
+                  .getAllKeys();
+              })
+              .then(restaurantId => {
                 dbPromise
-                .then(db => {
-                  var tx = db.transaction('restaurantReviews', 'readwrite');
-                  var keyValStore = tx.objectStore('restaurantReviews');
-              
-                  keyValStore.get('' + review.restaurant_id)
-                    .then(reviewsForRestaurant => {
-                      reviewsForRestaurant.push(review);
-                      keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id)
-                    })
-                  return tx.complete;
+                  .then(db => {
+                    var tx = db.transaction('restaurantReviews', 'readwrite');
+                    var keyValStore = tx.objectStore('restaurantReviews');
+                
+                    keyValStore.get('' + restaurantId)
+                      .then(reviewsForRestaurant => {
+                        reviewsForRestaurant = reviewsForRestaurant.filter(r => !r.isOffline);
+                        keyValStore.put(reviewsForRestaurant, '' + restaurantId)
+                      })
+                    return tx.complete;
+                  })
+              })
+            });
+      }),
+      dbPromise.then(db => {
+        return db
+          .transaction('restaurantDetails')
+          .objectStore('restaurantDetails')
+          .getAll()
+          .then(restaurants => {
+            if(restaurants.length === 0) return;
+  
+            let offlineRestaurants = restaurants.filter(r => r.isOffline);
+
+            console.log(offlineRestaurants, '<- offline restaurants!')
+            Promise.all(
+              offlineRestaurants.map(offlineRestaurant => {
+                const url = `http://localhost:1337/restaurants/${offlineRestaurant.id}/?is_favorite=${offlineRestaurant.is_favorite}`;
+
+                console.log(url);
+
+                return fetch(url, {
+                  method: 'PUT',
                 })
-                })
-            }))
-            .then(() => {
-              return db
-                .transaction('restaurantReviews')
-                .objectStore('restaurantReviews')
-                .getAllKeys();
+              })
+            )
             })
-            .then(restaurantId => {
-              dbPromise
-                .then(db => {
-                  var tx = db.transaction('restaurantReviews', 'readwrite');
-                  var keyValStore = tx.objectStore('restaurantReviews');
-              
-                  keyValStore.get('' + restaurantId)
-                    .then(reviewsForRestaurant => {
-                      reviewsForRestaurant = reviewsForRestaurant.filter(r => !r.isOffline);
-                      keyValStore.put(reviewsForRestaurant, '' + restaurantId)
-                    })
-                  return tx.complete;
-                })
-            })
-          });
-    }));
+        })
+    ]));
   }
 });
 
@@ -265,7 +291,7 @@ self.addEventListener('fetch', function(event) {
     } else {
       event.respondWith(
         caches
-          .match(event.request)
+          .match(event.request, {ignoreSearch: true})
           .then((response) => response || fetch(event.request))
       );
     }
@@ -275,6 +301,7 @@ self.addEventListener('fetch', function(event) {
     if (navigator.onLine) {
       fetch(event.request);
     } else {
+      console.log(requestUrl.pathname, requestUrl.pathname.match(/restaurants\/(\d+)/));
       if (requestUrl.pathname.match(/reviews/)) {
         let originalRequest = event.request.clone();
         event.respondWith(
@@ -289,6 +316,18 @@ self.addEventListener('fetch', function(event) {
               })
           })
         )
+      } else if (requestUrl.pathname.match(/restaurants\/(\d+)/)) {
+        const matches = requestUrl.pathname.match(/restaurants\/(\d+)/);
+
+        event.respondWith(
+          toggleOfflineRestaurantReviewToDatabase(matches[1])
+            .then(() => {
+              var blob = new Blob([JSON.stringify({success: true, id: matches[1]}, null, 2)], {type : 'application/json'});
+
+              var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
+              return new Response(blob, init);
+            })
+        );
       }
     }
   }
@@ -346,6 +385,22 @@ const addOfflineReviewToDatabase = (review) => {
         review.isOffline = true;
         reviewsForRestaurant.push(review);
         keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id);
+      })
+    return tx.complete;
+  })
+}
+
+const toggleOfflineRestaurantReviewToDatabase = (restaurantId) => {
+  return dbPromise.then(db => {
+    var tx = db.transaction('restaurantDetails', 'readwrite');
+    var keyValStore = tx.objectStore('restaurantDetails');
+
+    keyValStore.get('' + restaurantId)
+      .then(restaurantDetails => {
+        restaurantDetails.isOffline = restaurantDetails.isOffline ? null : true;
+        restaurantDetails.is_favorite = restaurantDetails.is_favorite === 'true' ? 'false' : 'true';
+        console.log(restaurantDetails)
+        keyValStore.put(restaurantDetails, '' + restaurantId);
       })
     return tx.complete;
   })

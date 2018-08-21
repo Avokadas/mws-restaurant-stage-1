@@ -4,6 +4,13 @@ let restaurant;
 var map;
 
 if(navigator.serviceWorker) {
+  navigator.serviceWorker.register('/build_sw.js')
+  .then(function(reg) {
+    if (!navigator.serviceWorker.controller) {
+        return;
+    }
+  });
+
   navigator.serviceWorker.ready
     .then((reg) => reg.sync.register('sync-reviews'))
 };
@@ -71,6 +78,7 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
           : 'false'
       )
       .then(savedRestaurant => {
+        console.log(savedRestaurant);
         restaurant.is_favorite = savedRestaurant.is_favorite;
       })
   })
@@ -164,6 +172,7 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
         comments: restaurantCommentTextArea.value
       })
       .then(review => {
+        console.log(review,'look who came back')
         const ul = document.getElementById('reviews-list');
         ul.appendChild(createReviewHTML(review));
       });
