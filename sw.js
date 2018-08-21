@@ -63,8 +63,10 @@ self.addEventListener('sync', function(event) {
 
           if(reviews.length === 0) return;
 
-          let offlineReviews = reviews
-            .filter(r => r.isOffline);
+          let offlineReviews = reviews.filter(r => r.isOffline);
+
+
+          console.log(offlineReviews);
 
           Promise.all(
           offlineReviews.map(offlineReview => {
@@ -94,23 +96,23 @@ self.addEventListener('sync', function(event) {
                 })
             }))
             .then(() => {
-              db
+              return db
                 .transaction('restaurantReviews')
                 .objectStore('restaurantReviews')
-                .getAllKeys()
-                .then(restaurantId => {
-                  dbPromise
-                    .then(db => {
-                      var tx = db.transaction('restaurantReviews', 'readwrite');
-                      var keyValStore = tx.objectStore('restaurantReviews');
-                  
-                      keyValStore.get('' + restaurantId)
-                        .then(reviewsForRestaurant => {
-                          reviewsForRestaurant = reviewsForRestaurant.filter(r => !r.isOffline);
-                          keyValStore.put(reviewsForRestaurant, '' + restaurantId)
-                        })
-                      return tx.complete;
+                .getAllKeys();
+            })
+            .then(restaurantId => {
+              dbPromise
+                .then(db => {
+                  var tx = db.transaction('restaurantReviews', 'readwrite');
+                  var keyValStore = tx.objectStore('restaurantReviews');
+              
+                  keyValStore.get('' + restaurantId)
+                    .then(reviewsForRestaurant => {
+                      reviewsForRestaurant = reviewsForRestaurant.filter(r => !r.isOffline);
+                      keyValStore.put(reviewsForRestaurant, '' + restaurantId)
                     })
+                  return tx.complete;
                 })
             })
           });
@@ -273,13 +275,20 @@ self.addEventListener('fetch', function(event) {
     if (navigator.onLine) {
       fetch(event.request);
     } else {
-      const matches = requestUrl.pathname.match(/reviews/);
-      console.log(matches, requestUrl.pathname);
-      if (matches) {
-        event.request.json()
-        .then(res => {
-          addOfflineReviewToDatabase(res)
-        })
+      if (requestUrl.pathname.match(/reviews/)) {
+        let originalRequest = event.request.clone();
+        event.respondWith(
+          originalRequest.json()
+          .then(res => {
+            return addOfflineReviewToDatabase(res)
+              .then(() => {
+                var blob = new Blob([JSON.stringify(res, null, 2)], {type : 'application/json'});
+
+                var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
+                return new Response(blob, init);
+              })
+          })
+        )
       }
     }
   }
@@ -334,10 +343,9 @@ const addOfflineReviewToDatabase = (review) => {
 
     keyValStore.get('' + review.restaurant_id)
       .then(reviewsForRestaurant => {
-        console.log(reviewsForRestaurant)
         review.isOffline = true;
         reviewsForRestaurant.push(review);
-        keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id)
+        keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id);
       })
     return tx.complete;
   })
