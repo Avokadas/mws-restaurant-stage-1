@@ -152,6 +152,7 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
 
   const reviewFormSubmitButton = document.createElement('button');
   reviewFormSubmitButton.textContent = 'Submit Review';
+  reviewFormSubmitButton.setAttribute('aria-label', 'Submit')
   reviewFormSubmitButton.addEventListener('click', (e) => {
     e.preventDefault();
 
