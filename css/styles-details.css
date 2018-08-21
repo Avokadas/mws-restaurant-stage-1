@@ -189,3 +189,14 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
 }
+
+@media screen and (max-width: 750px) {
+  /* small */
+  #restaurant-container {
+    width: calc(100% - 30px);
+    padding-top: 30px;
+  }
+  #reviews-container {
+    margin-bottom: 30px;
+  }
+}

@@ -87,7 +87,7 @@ self.addEventListener('sync', function(event) {
                   keyValStore.get('' + review.restaurant_id)
                     .then(reviewsForRestaurant => {
                       reviewsForRestaurant.push(review);
-                      keyValStore.put(reviewsForRestaurant, review.restaurant_id)
+                      keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id)
                     })
                   return tx.complete;
                 })
@@ -107,7 +107,7 @@ self.addEventListener('sync', function(event) {
                       keyValStore.get('' + restaurantId)
                         .then(reviewsForRestaurant => {
                           reviewsForRestaurant = reviewsForRestaurant.filter(r => !r.isOffline);
-                          keyValStore.put(reviewsForRestaurant, restaurantId)
+                          keyValStore.put(reviewsForRestaurant, '' + restaurantId)
                         })
                       return tx.complete;
                     })
@@ -313,7 +313,7 @@ const addRestaurantDetailsToDatabase = (restaurantDetails, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantDetails', 'readwrite');
     var keyValStore = tx.objectStore('restaurantDetails');
-    keyValStore.put(restaurantDetails, restaurantId)
+    keyValStore.put(restaurantDetails, '' + restaurantId)
     return tx.complete;
   })
 }
@@ -322,7 +322,7 @@ const addRestaurantReviewsToDatabase = (restaurantReviews, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantReviews', 'readwrite');
     var keyValStore = tx.objectStore('restaurantReviews');
-    keyValStore.put(restaurantReviews, restaurantId)
+    keyValStore.put(restaurantReviews, '' + restaurantId)
     return tx.complete;
   })
 }
@@ -337,7 +337,7 @@ const addOfflineReviewToDatabase = (review) => {
         console.log(reviewsForRestaurant)
         review.isOffline = true;
         reviewsForRestaurant.push(review);
-        keyValStore.put(reviewsForRestaurant, review.restaurant_id)
+        keyValStore.put(reviewsForRestaurant, '' + review.restaurant_id)
       })
     return tx.complete;
   })

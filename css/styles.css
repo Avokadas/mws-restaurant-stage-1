@@ -37,6 +37,7 @@
   margin: 0;
   padding: 30px 15px 10px;
   text-align: center;
+  margin-bottom: 50px;
 }
 #restaurants-list li {
   background-color: #fff;
