@@ -13,3 +13,8 @@ To Start the project:
 
 Application should open up in the browser automatically.
 
+### Notes:
+
+Tab indexes are not used on landmarks as mentioned by one of the reviewers. Article Below:
+https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex#Accessibility_concerns
+
