@@ -52,8 +52,8 @@ self.addEventListener('activate', function(event) {
 });
 
 // Sync of reviews when coming back online
-  if (event.tag === 'sync-reviews') {
-    
+self.addEventListener('message', function(event) {
+  if (event.data === 'sync') {
     event.waitUntil(Promise.all([
       dbPromise.then(db => {
         return db

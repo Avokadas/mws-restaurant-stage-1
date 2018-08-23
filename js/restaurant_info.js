@@ -12,9 +12,15 @@ if(navigator.serviceWorker) {
   });
 
   navigator.serviceWorker.ready
-    .then((reg) => reg.sync.register('sync-reviews'))
-};
-
+    .then(() => {
+      if (!navigator.serviceWorker.controller || !navigator.onLine) {
+          return;
+      }
+      navigator.serviceWorker.controller.postMessage('sync');
+    });
+  
+  };
+  
 /**
  * Get current restaurant from page URL.
  */
