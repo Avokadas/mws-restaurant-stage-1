@@ -29,7 +29,6 @@ const fetchRestaurantFromURL = (callback) => {
     callback(error, null);
   } else {
     DbHelper.fetchRestaurantById(id, (error, restaurant) => {
-      console.log(restaurant);
       self.restaurant = restaurant;
       if (!restaurant) {
         console.error(error);
@@ -78,7 +77,6 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
           : 'false'
       )
       .then(savedRestaurant => {
-        console.log(savedRestaurant);
         restaurant.is_favorite = savedRestaurant.is_favorite;
       })
   })
@@ -172,7 +170,6 @@ const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
         comments: restaurantCommentTextArea.value
       })
       .then(review => {
-        console.log(review,'look who came back')
         const ul = document.getElementById('reviews-list');
         ul.appendChild(createReviewHTML(review));
       });

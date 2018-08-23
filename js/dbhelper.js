@@ -37,7 +37,6 @@ export default class DbHelper {
         fetch(`${DbHelper.DATABASE_URL}/reviews/?restaurant_id=${id}`)
           .then(res => res.json())
           .then(reviews => {
-            console.log(reviews);
             restaurant.reviews = reviews;
             callback(null, restaurant);
           })

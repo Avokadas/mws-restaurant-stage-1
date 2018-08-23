@@ -67,8 +67,6 @@ self.addEventListener('sync', function(event) {
             let offlineReviews = reviews.filter(r => r.isOffline);
   
   
-            console.log(offlineReviews);
-  
             Promise.all(
             offlineReviews.map(offlineReview => {
               fetch('http://localhost:1337/reviews/', {
@@ -128,12 +126,9 @@ self.addEventListener('sync', function(event) {
   
             let offlineRestaurants = restaurants.filter(r => r.isOffline);
 
-            console.log(offlineRestaurants, '<- offline restaurants!')
             Promise.all(
               offlineRestaurants.map(offlineRestaurant => {
                 const url = `http://localhost:1337/restaurants/${offlineRestaurant.id}/?is_favorite=${offlineRestaurant.is_favorite}`;
-
-                console.log(url);
 
                 return fetch(url, {
                   method: 'PUT',
@@ -151,7 +146,6 @@ self.addEventListener('fetch', function(event) {
 
   const handleServeImage = (request) => {
     var storageUrl = request.url.replace(/-\d+px\.webp$/, '');
-    console.log(storageUrl);
     return caches.open(contentImgsCache)
       .then((cache) => {
         return cache.match(storageUrl)
@@ -225,10 +219,8 @@ self.addEventListener('fetch', function(event) {
               .objectStore('restaurantDetails')
               .getAll()
               .then(res => {
-                console.log(res);
                 let restaurantDetails = res.find(r => r.id === parseInt(restaurantId));
 
-                console.log('returning when offline!!!', restaurantDetails)
                 var blob = new Blob([JSON.stringify(restaurantDetails, null, 2)], {type : 'application/json'});
   
                 var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
@@ -261,11 +253,9 @@ self.addEventListener('fetch', function(event) {
             .getAll()
             .then(reviewsByRestaurant => {
               const reviews = reviewsByRestaurant.reduce((allReviews, reviewsBySingleRestaurant) => allReviews.concat(reviewsBySingleRestaurant), []);
-              console.log(reviews);
               let restaurantReviews = reviews
                 .filter(r => r.restaurant_id === parseInt(restaurantId));
 
-              console.log('returning when offline!!!', restaurantReviews)
               var blob = new Blob([JSON.stringify(restaurantReviews, null, 2)], {type : 'application/json'});
 
               var init = { "status" : 200 , "statusText" : "SuperSmashingGreat!" };
@@ -277,7 +267,6 @@ self.addEventListener('fetch', function(event) {
 }
 
   const handleQueryRequests = () => {
-    console.log(requestUrl.pathname);
     if(requestUrl.pathname === '/restaurants') {
       handleRestaurantsQuery();
     } else if (requestUrl.pathname.match(/restaurants\/\d+/)) {
@@ -301,7 +290,6 @@ self.addEventListener('fetch', function(event) {
     if (navigator.onLine) {
       fetch(event.request);
     } else {
-      console.log(requestUrl.pathname, requestUrl.pathname.match(/restaurants\/(\d+)/));
       if (requestUrl.pathname.match(/reviews/)) {
         let originalRequest = event.request.clone();
         event.respondWith(
@@ -399,7 +387,6 @@ const toggleOfflineRestaurantReviewToDatabase = (restaurantId) => {
       .then(restaurantDetails => {
         restaurantDetails.isOffline = restaurantDetails.isOffline ? null : true;
         restaurantDetails.is_favorite = restaurantDetails.is_favorite === 'true' ? 'false' : 'true';
-        console.log(restaurantDetails)
         keyValStore.put(restaurantDetails, '' + restaurantId);
       })
     return tx.complete;
