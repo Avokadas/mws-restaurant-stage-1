@@ -7,6 +7,7 @@ var allCaches = [
   contentImgsCache
 ];
 
+// Updating indexedDb database schema
 var dbPromise = idb.open('restaurants-db', 4, function(upgradeDb) {
   switch(upgradeDb.oldVersion) {
     case 0:
@@ -18,6 +19,7 @@ var dbPromise = idb.open('restaurants-db', 4, function(upgradeDb) {
   }
 });
 
+// Adding basic resources to Cache Storage
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(staticCacheName).then(function(cache) {
@@ -34,6 +36,7 @@ self.addEventListener('install', function(event) {
   );
 });
 
+// Delete previous cache versions if exists
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -48,7 +51,7 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-self.addEventListener('sync', function(event) {
+// Sync of reviews when coming back online
   if (event.tag === 'sync-reviews') {
     
     event.waitUntil(Promise.all([
@@ -141,6 +144,7 @@ self.addEventListener('sync', function(event) {
   }
 });
 
+// Handle HTTP requests
 self.addEventListener('fetch', function(event) {
   var requestUrl = new URL(event.request.url);
 
@@ -334,6 +338,8 @@ self.addEventListener('fetch', function(event) {
 
 });
 
+
+// Add a restaurant to IndexedDb when online
 const addRestaurantsToDatabase = (restaurants) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurants', 'readwrite');
@@ -345,6 +351,7 @@ const addRestaurantsToDatabase = (restaurants) => {
   })
 }
 
+// Add a restaurant details to IndexedDb when online
 const addRestaurantDetailsToDatabase = (restaurantDetails, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantDetails', 'readwrite');
@@ -354,6 +361,7 @@ const addRestaurantDetailsToDatabase = (restaurantDetails, restaurantId) => {
   })
 }
 
+// Add a restaurant review to IndexedDb when online
 const addRestaurantReviewsToDatabase = (restaurantReviews, restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantReviews', 'readwrite');
@@ -363,6 +371,7 @@ const addRestaurantReviewsToDatabase = (restaurantReviews, restaurantId) => {
   })
 }
 
+// Add a restaurant review to IndexedDb when offline
 const addOfflineReviewToDatabase = (review) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantReviews', 'readwrite');
@@ -378,6 +387,7 @@ const addOfflineReviewToDatabase = (review) => {
   })
 }
 
+// Update restaurant's favorite state and save to IndexedDb when offline
 const toggleOfflineRestaurantReviewToDatabase = (restaurantId) => {
   return dbPromise.then(db => {
     var tx = db.transaction('restaurantDetails', 'readwrite');
